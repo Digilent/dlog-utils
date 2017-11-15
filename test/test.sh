@@ -12,10 +12,7 @@ fi
 
 FILESIZE=$(stat -c%s "test.csv")
 
-if [ ! "$FILESIZE" -eq 26529 ]; then
-    printf "Incorrect file size\n"
-    exit 1
-fi
+cmp ./test.csv ./test/success.csv || exit 2
 
 printf "Test Completed Successfully\n"
 

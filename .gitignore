@@ -10,5 +10,5 @@ examples/build
 *.so
 *.dll
 *.lib
-*.csv
+/*.csv
 *.vscode
