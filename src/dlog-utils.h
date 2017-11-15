@@ -16,6 +16,9 @@
 
 namespace DlogUtil
 {
+/******************************************************************************
+* DlogConvert status enum
+******************************************************************************/
 enum ConvertStatus: uint32_t
 {
     OK = 0,
@@ -23,9 +26,17 @@ enum ConvertStatus: uint32_t
     INVALIDHEADER
 };
 
+/******************************************************************************
+* DlogConvert class
+* 
+* This class exposes the ability to convert dlog files into csv files
+******************************************************************************/
 class DlogConvert
 {
-    private:
+private:
+        /******************************************************************************
+        * File header info struct
+        ******************************************************************************/
         struct HeaderInfo
         {
             uint8_t  endian;          // 0 - little endian 1 - big endian
@@ -43,21 +54,58 @@ class DlogConvert
             uint64_t delayUnits;      // divide psDelay by delayUnits to get the delay in seconds.
             int64_t  psDelay;         // how many pico seconds a delay from the start of sampling until the first sample was taken, usually 0
         };
+        /******************************************************************************
+        * Header info instance
+        ******************************************************************************/
         HeaderInfo headerInfo;
 
+        /******************************************************************************
+        * Buffer size constants
+        ******************************************************************************/
         static const unsigned int BUFFERSIZE = 10000000;
         static const unsigned int OUTBUFFERSIZE = 200000000;
+
+        /******************************************************************************
+        * Input and output buffers
+        ******************************************************************************/
         uint8_t* fileBuffer = new uint8_t[BUFFERSIZE];
         char* outputBuffer = new char[OUTBUFFERSIZE];
 
+        /******************************************************************************
+        * Parse file header
+        * @return - Returns a ConvertStatus
+        ******************************************************************************/
         ConvertStatus parseFileHeader();
+
+        /******************************************************************************
+        * Convert dlog to csv
+        * @return - Returns a ConvertStatus
+        ******************************************************************************/
         ConvertStatus convertToCsv(std::istream& inputFS, std::ostream& outputFS);
+
+        /******************************************************************************
+        * Parse double and place characters in the output buffer
+        * @return - void
+        ******************************************************************************/
         void doubleToString(double num, char* str, uint8_t precision, uint64_t* numBytesFilled);
     
     public:
+        /******************************************************************************
+        * Constructor
+        ******************************************************************************/
         DlogConvert();
+
+        /******************************************************************************
+        * Destructor
+        ******************************************************************************/
         ~DlogConvert();
 
+        /******************************************************************************
+        * Convert a dlog file to a csv
+        * @param - path to dlog file
+        * @param - output file name
+        * @return - status code
+        ******************************************************************************/
         uint32_t ConvertFile(const std::string& pathToDlog, const std::string& outputName);
 };
 } //namespace DlogUtil
