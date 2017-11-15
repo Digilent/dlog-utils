@@ -89,4 +89,4 @@ testMac:
 cache:
   paths:
   - build/
-  
+  - examples/build
