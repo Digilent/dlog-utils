@@ -53,9 +53,16 @@ make all
 
 Run an example
 
-```
-./examples/main.exe example.dlog example
-```
+* **Windows**
+
+  ```
+  ./examples/build/main.exe log.dlog log
+  ```
+* **Linux/Mac**
+
+  ```
+  ./examples/build/main.out log.dlog log
+  ```
 
 ## License
 
