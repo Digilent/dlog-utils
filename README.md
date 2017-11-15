@@ -45,6 +45,12 @@ Setup Environment
 make setupEnv
 ```
 
+Build Project
+
+```
+make all
+```
+
 Run an example
 
 ```
