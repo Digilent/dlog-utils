@@ -37,7 +37,7 @@ dlogStaticLib:
 dlogExamples:
 	$(CXX) $(INC) $(CXXFLAGS) examples/main.cpp -o examples/build/main$(APPEXT) build/libdlogutils.a
 
-all: dlogLib dlogStaticLib dlogExamples docs
+all: dlogLib dlogStaticLib dlogExamples
 
 #Setup Environment
 setupEnv:
