@@ -1,0 +1,92 @@
+stages:
+  - setup 
+  - build
+  - test 
+
+#---------- Windows ----------
+setupWindows:
+  stage: setup
+  tags:
+    - windows
+  script:    
+    - make setupEnv
+    - make clean    
+
+buildWindows:
+  stage: build
+  tags:
+    - windows
+  script:    
+    - make all   
+  dependencies:
+    - setupWindows
+
+testWindows:
+  stage: test
+  tags:
+    - windows  
+  script: 
+    - .\test\test.sh
+  dependencies:
+    - buildWindows
+
+#---------- Linux ----------
+setupLinux:
+  stage: setup
+  tags:
+    - linux
+  script:    
+    - pwd
+    - make setupEnv
+    - make clean    
+
+buildLinux:
+  stage: build
+  tags:
+    - linux
+  script:    
+    - make all   
+  dependencies:
+    - setupLinux
+
+testLinux:
+  stage: test
+  tags:
+    - linux  
+  script: 
+    - ./test/test.sh
+  dependencies:
+    - buildLinux 
+
+#---------- Mac OSX ----------
+setupMac:
+  stage: setup
+  tags:
+    - mac
+  script:    
+    - pwd
+    - make setupEnv
+    - make clean    
+
+buildMac:
+  stage: build
+  tags:
+    - mac
+  script:    
+    - make all   
+  dependencies:
+    - setupMac
+
+testMac:
+  stage: test
+  tags:
+    - mac  
+  script: 
+    - ./test/test.sh
+  dependencies:
+    - buildMac 
+ 
+cache:
+  paths:
+  - build/
+  

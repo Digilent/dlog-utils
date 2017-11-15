@@ -1,0 +1,14 @@
+#Build outputs
+build
+doc
+examples/build
+
+*.o
+*.exe
+*.a
+*.out
+*.so
+*.dll
+*.lib
+*.csv
+*.vscode
