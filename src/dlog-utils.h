@@ -85,6 +85,10 @@ private:
 
         /******************************************************************************
         * Parse double and place characters in the output buffer
+        * @param num - the value to convert to string
+        * @param str - a pointer to a string or char array to fill
+        * @param precision - the desired number of decimals
+        * @param[out] numBytesFilled - the number of bytes placed
         * @return - void
         ******************************************************************************/
         void doubleToString(double num, char* str, uint8_t precision, uint64_t* numBytesFilled);
@@ -102,8 +106,8 @@ private:
 
         /******************************************************************************
         * Convert a dlog file to a csv
-        * @param - path to dlog file
-        * @param - output file name
+        * @param pathToDlog - path to dlog file
+        * @param outputName - output file name
         * @return - status code
         ******************************************************************************/
         uint32_t ConvertFile(const std::string& pathToDlog, const std::string& outputName);

@@ -126,6 +126,14 @@ ConvertStatus DlogConvert::convertToCsv(std::istream& inputFS, std::ostream& out
 
 void DlogConvert::doubleToString(double num, char* str, uint8_t precision, uint64_t* numBytesFilled)
 {
+    if (precision < 0)
+    {
+        precision = 0;
+    }
+    else if (precision > 9)
+    {
+        precision = 9;
+    }
     int index = 0;
     if (num < 0)
     {
