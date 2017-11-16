@@ -17,8 +17,6 @@ uint32_t DlogConvert::ConvertFile(const std::string& pathToDlog, const std::stri
         return ConvertStatus::INVALIDHEADER; 
     }
 
-    //this->printBuffer();
-
     status = this->parseFileHeader();
     if (status != ConvertStatus::OK) { return status; }
     
@@ -47,7 +45,7 @@ DlogConvert::~DlogConvert()
 
 ConvertStatus DlogConvert::parseFileHeader()
 {
-    //this->fileBuffer must contain the header of the file at this step
+    //this->fileBuffer must contain the header of the file (first 512 bytes) when this method is called
     this->headerInfo.endian = this->fileBuffer[0];
     this->headerInfo.cbSampleEntry = this->fileBuffer[1];
     this->headerInfo.cbHeader = this->fileBuffer[2] | (this->fileBuffer[3] << 8);
@@ -65,7 +63,6 @@ ConvertStatus DlogConvert::parseFileHeader()
 ConvertStatus DlogConvert::convertToCsv(std::istream& inputFS, std::ostream& outputFS)
 {
     std::string stopReason;
-    //Place stopreason first
     switch(this->headerInfo.stopReason)
     {
         case 0:
@@ -89,7 +86,6 @@ ConvertStatus DlogConvert::convertToCsv(std::istream& inputFS, std::ostream& out
     uint64_t count = 0;
     uint64_t bytesFilled = 0;
     double dt = 1.0 / ((double)(this->headerInfo.uSPS / 1000000.0));
-    double prevX = -1;
     
     while (!inputFS.eof()) 
     {
@@ -101,11 +97,6 @@ ConvertStatus DlogConvert::convertToCsv(std::istream& inputFS, std::ostream& out
         for (uint64_t i = 0; i < numBytes; i = i + 2) 
         {
             double x = (double)(dt * (count + i));
-            if (x < prevX)
-            {
-                std::cerr << "ERR! X: " << x << " PREV X: " << prevX << std::endl;
-            }
-            prevX = x;
             int16_t voltage = this->fileBuffer[i] | (int16_t)(this->fileBuffer[i + 1] << 8);
             double y = (double)voltage / 1000.0;
             this->doubleToString(x, &(this->outputBuffer[outfileCount]), 5, &bytesFilled);

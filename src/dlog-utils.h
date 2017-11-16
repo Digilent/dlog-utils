@@ -113,4 +113,5 @@ private:
         uint32_t ConvertFile(const std::string& pathToDlog, const std::string& outputName);
 };
 } //namespace DlogUtil
+
 #endif //DLOG_CONVERT_H
