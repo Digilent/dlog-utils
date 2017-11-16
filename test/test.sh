@@ -10,7 +10,14 @@ else
     exit 1
 fi
 
-cmp ./test.csv ./test/success.csv || exit 2
+FILESIZE=$(stat -c%s "test.csv")
+
+LINES=$(wc -l < test.csv)
+
+if [ ! "$LINES" -eq 1780 ]; then
+    printf "Invalid csv\n"
+    exit 1
+fi
 
 printf "Test Completed Successfully\n"
 
