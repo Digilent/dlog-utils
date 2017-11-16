@@ -10,8 +10,6 @@ else
     exit 1
 fi
 
-FILESIZE=$(stat -c%s "test.csv")
-
 cmp ./test.csv ./test/success.csv || exit 2
 
 printf "Test Completed Successfully\n"

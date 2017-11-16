@@ -24,7 +24,7 @@ uint32_t DlogConvert::ConvertFile(const std::string& pathToDlog, const std::stri
     
     //File header parsed successfully. Time to open output file and stream out data
 
-    std::ofstream outputFS (outputFileName.c_str(), std::ofstream::out);
+    std::ofstream outputFS (outputFileName.c_str(), std::ios::binary);
     if (!outputFS) {
         DEBUGLN("Error opening output file");
         return ConvertStatus::FILEOPENERR; 
