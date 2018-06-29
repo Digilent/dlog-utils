@@ -1,31 +1,40 @@
+
 #include "dlog-utils.h"
 #include <iostream>
 #include <fstream>
 
 namespace DlogUtil
 {
-uint32_t DlogConvert::ConvertFile(const std::string& pathToDlog, const std::string& outputName)
+uint32_t DlogConvert::ConvertFile(const std::string &pathToDlog, const std::string &outputName)
 {
     ConvertStatus status = ConvertStatus::OK;
     std::string outputFileName = outputName + ".csv";
-    std::ifstream inputFS (pathToDlog.c_str(), std::ifstream::binary);
-    if (!inputFS) { return ConvertStatus::FILEOPENERR; }
+    std::ifstream inputFS(pathToDlog.c_str(), std::ifstream::binary);
+    if (!inputFS)
+    {
+        return ConvertStatus::FILEOPENERR;
+    }
 
-    inputFS.read((char*)(&this->fileBuffer[0]), 512);
-    if (inputFS.gcount() != 512) {
+    inputFS.read((char *)(&this->fileBuffer[0]), 512);
+    if (inputFS.gcount() != 512)
+    {
         DEBUGLN("Error reading file header");
-        return ConvertStatus::INVALIDHEADER; 
+        return ConvertStatus::INVALIDHEADER;
     }
 
     status = this->parseFileHeader();
-    if (status != ConvertStatus::OK) { return status; }
-    
+    if (status != ConvertStatus::OK)
+    {
+        return status;
+    }
+
     //File header parsed successfully. Time to open output file and stream out data
 
-    std::ofstream outputFS (outputFileName.c_str(), std::ios::binary);
-    if (!outputFS) {
+    std::ofstream outputFS(outputFileName.c_str(), std::ios::binary);
+    if (!outputFS)
+    {
         DEBUGLN("Error opening output file");
-        return ConvertStatus::FILEOPENERR; 
+        return ConvertStatus::FILEOPENERR;
     }
 
     this->convertToCsv(inputFS, outputFS);
@@ -35,7 +44,7 @@ uint32_t DlogConvert::ConvertFile(const std::string& pathToDlog, const std::stri
     return status;
 }
 
-DlogConvert::DlogConvert() { }
+DlogConvert::DlogConvert() {}
 
 DlogConvert::~DlogConvert()
 {
@@ -53,50 +62,53 @@ ConvertStatus DlogConvert::parseFileHeader()
     this->headerInfo.format = this->fileBuffer[6] | (this->fileBuffer[7] << 8);
     this->headerInfo.revision = this->fileBuffer[8] | (this->fileBuffer[9] << 8) | (this->fileBuffer[10] << 16) | (this->fileBuffer[11] << 24);
     this->headerInfo.stopReason = this->fileBuffer[20] | (this->fileBuffer[21] << 8) | (this->fileBuffer[22] << 16) | (this->fileBuffer[23] << 24);
-    this->headerInfo.uSPS = (uint64_t)this->fileBuffer[48] | ((uint64_t)this->fileBuffer[49] << 8) | ((uint64_t)this->fileBuffer[50] << 16) | ((uint64_t)this->fileBuffer[51] << 24) | 
-        ((uint64_t)this->fileBuffer[52] << 32) | ((uint64_t)this->fileBuffer[53] << 40) | ((uint64_t)this->fileBuffer[54] << 48) | ((uint64_t)this->fileBuffer[55] << 56);
+    this->headerInfo.uSPS = (uint64_t)this->fileBuffer[48] | ((uint64_t)this->fileBuffer[49] << 8) | ((uint64_t)this->fileBuffer[50] << 16) | ((uint64_t)this->fileBuffer[51] << 24) |
+                            ((uint64_t)this->fileBuffer[52] << 32) | ((uint64_t)this->fileBuffer[53] << 40) | ((uint64_t)this->fileBuffer[54] << 48) | ((uint64_t)this->fileBuffer[55] << 56);
 
-    if (this->headerInfo.format != 1 || this->headerInfo.revision != 1 || this->headerInfo.cbHeaderInFile != 512 || this->headerInfo.uSPS > 50000000000 || this->headerInfo.uSPS == 0) { return ConvertStatus::INVALIDHEADER; }
+    if (this->headerInfo.format != 1 || this->headerInfo.revision != 1 || this->headerInfo.cbHeaderInFile != 512 || this->headerInfo.uSPS > 50000000000 || this->headerInfo.uSPS == 0)
+    {
+        return ConvertStatus::INVALIDHEADER;
+    }
     return ConvertStatus::OK;
 }
 
-ConvertStatus DlogConvert::convertToCsv(std::istream& inputFS, std::ostream& outputFS)
-{
+ConvertStatus DlogConvert::convertToCsv(std::istream &inputFS, std::ostream &outputFS)
+{    
     std::string stopReason;
-    switch(this->headerInfo.stopReason)
+    switch (this->headerInfo.stopReason)
     {
-        case 0:
-            stopReason = "Log Completed Normally\n";
-            break;
-        case 1:
-            stopReason = "Log Forced\n";
-            break;
-        case 2:
-            stopReason = "Log Error\n";
-            break;
-        case 3:
-            stopReason = "Log Overflow\n";
-            break;
-        default:
-            stopReason = "Log Unknown Error\n";
+    case 0:
+        stopReason = "Log Completed Normally\n";
+        break;
+    case 1:
+        stopReason = "Log Forced\n";
+        break;
+    case 2:
+        stopReason = "Log Error\n";
+        break;
+    case 3:
+        stopReason = "Log Overflow\n";
+        break;
+    default:
+        stopReason = "Log Unknown Error\n";
     }
-        
+
     outputFS.write(stopReason.c_str(), stopReason.length());
 
     uint64_t count = 0;
     uint64_t bytesFilled = 0;
     double dt = 1.0 / ((double)(this->headerInfo.uSPS / 1000000.0));
-    
-    while (!inputFS.eof()) 
+
+    while (!inputFS.eof())
     {
-        inputFS.read((char*)(&this->fileBuffer[0]), this->BUFFERSIZE);
+        inputFS.read((char *)(&this->fileBuffer[0]), this->BUFFERSIZE);
         uint64_t numBytes = inputFS.gcount();
         uint64_t outfileCount = 0;
-        
+
         DEBUGLN("Parsing input buffer");
-        for (uint64_t i = 0; i < numBytes; i = i + 2) 
+        for (uint64_t i = 0; i < numBytes; i = i + 2)
         {
-            double x = (double)(dt * (count + i));
+            double x = (double)(dt * (count + i/2));                   
             int16_t voltage = this->fileBuffer[i] | (int16_t)(this->fileBuffer[i + 1] << 8);
             double y = (double)voltage / 1000.0;
             this->doubleToString(x, &(this->outputBuffer[outfileCount]), 5, &bytesFilled);
@@ -115,7 +127,7 @@ ConvertStatus DlogConvert::convertToCsv(std::istream& inputFS, std::ostream& out
     return ConvertStatus::OK;
 }
 
-void DlogConvert::doubleToString(double num, char* str, uint8_t precision, uint64_t* numBytesFilled)
+void DlogConvert::doubleToString(double num, char *str, uint8_t precision, uint64_t *numBytesFilled)
 {
     if (precision < 0)
     {
@@ -147,12 +159,12 @@ void DlogConvert::doubleToString(double num, char* str, uint8_t precision, uint6
         str[index + (place - i - 1)] = (whole % 10) + 48;
         whole /= 10;
     }
-    
+
     index += place;
     str[index++] = '.';
 
     uint64_t mult = 10;
-    
+
     for (int i = 0; i < precision; i++)
     {
         str[index + i] = ((uint64_t)(frac * mult) % 10) + 48;
