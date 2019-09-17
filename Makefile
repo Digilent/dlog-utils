@@ -2,8 +2,10 @@
 CXX ?=g++
 CXXFLAGS = -Wall -O2 -std=c++11
 LIBFLAGS = -fPIC -shared
-INC = -Isrc
-LIBCORE = src/dlog-utils.cpp
+INC = -Isrc -Ilib
+LIBCORE = src/dlog.cpp
+KAITAICORE = lib/kaitai/kaitaistream.cpp
+KAITAIFLAGS = -DKS_STR_ENCODING_NONE
 APPEXT = .out
 SOEXT = .so
 DEBUGABLE =
@@ -26,8 +28,16 @@ ifeq ($(DEBUGPRINT), 1)
     CXXFLAGS += -DDEBUGPRINT
 endif
 
+kaitai:
+	$(CXX) $(KAITAIFLAGS) $(KAITAICORE) -c -o build/kaitai$(SOEXT)
+
+kaitaiStatic:
+	$(CXX) $(INC) $(KAITAIFLAGS) $(KAITAICORE) -c -o build/kaitai.o
+	ar rcs build/libkaitai.a build/kaitai.o
+	rm build/kaitai.o
+
 dlogLib:
-	$(CXX) $(INC) $(LIBCORE) $(CXXFLAGS) $(LIBFLAGS) -o build/libdlogutils$(SOEXT)
+	$(CXX) $(INC) $(LIBCORE) $(CXXFLAGS) $(LIBFLAGS) build/libkaitai.a -o build/libdlogutils$(SOEXT)
 
 dlogStaticLib:
 	$(CXX) $(INC) $(LIBCORE) $(CXXFLAGS) -c -o build/dlogutils.o
@@ -35,9 +45,9 @@ dlogStaticLib:
 	rm build/dlogutils.o
 
 dlogExamples:
-	$(CXX) $(INC) $(CXXFLAGS) examples/main.cpp -o examples/build/main$(APPEXT) build/libdlogutils.a
+	$(CXX) $(INC) $(CXXFLAGS) examples/main.cpp -o examples/build/main$(APPEXT) build/libdlogutils.a build/libkaitai.a
 
-all: dlogLib dlogStaticLib dlogExamples
+all: kaitai kaitaiStatic dlogLib dlogStaticLib dlogExamples
 
 #Setup Environment
 setupEnv:
