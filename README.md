@@ -30,7 +30,7 @@ These instructions will get you a copy of the project up and running on your loc
 Clone this repository
 
 ```
-git clone https://git.digilentinc.com/dsukumar/dlog-utils.git
+git clone https://github.com/digilent/dlog-utils.git
 ```
 
 Move to project directory
