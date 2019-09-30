@@ -22,6 +22,9 @@ buildWindows:
     - make all   
   dependencies:
     - setupWindows
+  artifacts:
+    paths:
+      - examples\build\main.exe
 
 testWindows:
   stage: test
@@ -51,6 +54,9 @@ buildLinux:
     - make all   
   dependencies:
     - setupLinux
+  artifacts:
+    paths:
+      - examples/build/main.out
 
 testLinux:
   stage: test
@@ -80,6 +86,9 @@ buildMac:
     - make all   
   dependencies:
     - setupMac
+  artifacts:
+    paths:
+      - examples/build/main.out
 
 testMac:
   stage: test
