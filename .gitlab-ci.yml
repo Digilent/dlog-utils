@@ -16,6 +16,8 @@ buildWindows:
   stage: build
   tags:
     - windows
+  variables:
+    SET_MSC_VER: "true"
   script:    
     - make all   
   dependencies:

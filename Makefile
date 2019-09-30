@@ -28,6 +28,10 @@ ifeq ($(DEBUGPRINT), 1)
     CXXFLAGS += -DDEBUGPRINT
 endif
 
+ifdef SET_MSC_VER
+	KAITAIFLAGS += -D_MSC_VER
+endif
+
 kaitai:
 	$(CXX) $(KAITAIFLAGS) $(KAITAICORE) -c -o build/kaitai$(SOEXT)
 
